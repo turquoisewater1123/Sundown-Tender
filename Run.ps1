@@ -7,9 +7,12 @@ $node = (Get-Command node).Source
 & $node --env-file=.env -e "if(!process.env.MONGODB_URI)process.exit(1)"
 if ($LASTEXITCODE) { throw 'Set MONGODB_URI in .env and install Node 22.15+.' }
 foreach ($app in 'Novel','SillyTavern') {
-    if (!(Test-Path "$app/node_modules")) {
-        & npm.cmd ci --prefix $app --no-audit --no-fund
+    $stamp = "$app/node_modules/.nightread-lock"
+    $lock = (Get-FileHash "$app/package-lock.json").Hash
+    if (!(Test-Path $stamp) -or (Get-Content $stamp -Raw).Trim() -ne $lock) {
+        & npm.cmd ci --prefix $app --omit=dev --no-audit --no-fund
         if ($LASTEXITCODE) { throw "npm ci failed for $app" }
+        Set-Content $stamp $lock
     }
 }
 & $node runtime/prepare-tavern.mjs

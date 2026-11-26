@@ -50,3 +50,13 @@ node --env-file=.env Novel/verify-migration.mjs
 ## 分支与自动同步
 
 日常修改推送 dev。GitHub Actions 安装依赖、初始化角色卡并执行语法与 APK 存在性检查；全部通过后自动将 test 快进到该提交，无需 PR 审核。test 用作发布分支，避免直接向 test 提交。仓库需启用 Actions 并允许工作流写入 contents。如果两条分支分叉，推送会失败并保留原历史。另一台电脑使用 git pull --ff-only 更新本地 test；升级后如锁文件变化，重新执行 npm ci --prefix Novel 与 npm ci --prefix SillyTavern，再重启服务。
+
+### 免费云数据库选择
+
+| 服务 | 免费容量 | 接入本项目 |
+| --- | --- | --- |
+| [MongoDB Atlas Free](https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/) | 0.5 GB，包含索引 | 与现有驱动和事务兼容，配置连接串即可 |
+| [Supabase Free](https://supabase.com/pricing) | 每项目 500 MB PostgreSQL | 适合明确要求开源引擎的部署，需要重写 Mongo 查询、聚合、事务及迁移工具 |
+| [Google Cloud Firestore](https://firebase.google.com/docs/firestore/pricing) | 每项目一个免费数据库，1 GiB，每日 5 万次文档读、2 万次文档写 | 可以用 Google 账号创建项目；需要改用 Firestore SDK 与数据模型 |
+
+Google Drive / Google One 是文件空间，可以存静态备份。不要将运行中的 MongoDB 数据目录放入网盘同步。个人网盘容量与 Firestore 或 Atlas 的配额独立。
