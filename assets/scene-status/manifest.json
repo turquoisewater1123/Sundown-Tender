@@ -1,0 +1,8 @@
+{
+  "display_name": "剧本状态",
+  "loading_order": 100,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "Local",
+  "version": "1.1.0"
+}

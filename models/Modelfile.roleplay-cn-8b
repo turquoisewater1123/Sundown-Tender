@@ -1,0 +1,5 @@
+FROM ./Qwen3-8B-Roleplay-CN-v7-Q4_K_M.gguf
+PARAMETER num_ctx 8192
+PARAMETER temperature 0.85
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"

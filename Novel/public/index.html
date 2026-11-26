@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>夜读 · 互动小说</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.mjs"></script>
+</head>
+<body data-view="chat">
+    <div class="shell">
+        <div id="portrait" class="portrait" aria-hidden="true"></div>
+        <header class="top">
+            <button id="library" class="button symbol" aria-label="返回聊天库" title="返回聊天库">
+                <svg viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></svg>
+            </button>
+            <div id="header-face"></div>
+            <button type="button" class="identity" id="story-history-link" aria-label="查看当前剧本的历史">
+                <span id="route">夜读</span>
+                <span id="character">互动小说</span>
+            </button>
+            <button id="inspect" class="button symbol" aria-label="剧情状态" title="剧情状态" disabled>
+                <svg viewBox="0 0 24 24"><path d="m3 12 4-4 3 4 3-7 3 11 2-4h3"/></svg>
+            </button>
+            <button id="phone" class="button symbol" aria-label="语音对话" title="语音对话" disabled>
+                <svg viewBox="0 0 24 24"><path d="m8 4 2 5-2 2a12 12 0 0 0 5 5l2-2 5 2c1 7-8 5-13 0S1 3 8 4Z"/></svg>
+            </button>
+        </header>
+        <main id="reading" tabindex="0" aria-label="剧情记录">
+            <div class="welcome" id="welcome">
+                <div class="welcome-content">
+                    <p id="welcome-name"></p>
+                    <h1>打开故事</h1>
+                    <button id="begin" class="button gold">选择角色</button>
+                </div>
+            </div>
+            <div id="messages" class="messages" hidden></div>
+        </main>
+        <footer id="footer" hidden>
+            <input id="reader-photo" type="file" accept="image/*" hidden>
+            <p id="notice" role="status"></p>
+            <div class="tools">
+                <button id="music" class="tool" aria-pressed="false" hidden>背景音</button>
+                <button id="jump" class="tool" hidden>回到最新 ↓</button>
+            </div>
+            <form id="composer">
+                <button hidden id="dictate" type="button" class="button symbol" aria-label="语音输入">
+                    <svg viewBox="0 0 24 24"><path d="M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></svg>
+                </button>
+                <textarea id="input" rows="1" maxlength="4000" placeholder="回复…" aria-label="你的回复" required></textarea>
+                <button id="send" class="button symbol" type="submit" aria-label="发送" title="发送">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 4 18 8-18 8 3-8-3-8Zm3 8h15"/></svg>
+                </button>
+                <button id="stop" class="button" type="button" hidden>停止</button>
+            </form>
+        </footer>
+    </div>
+    <nav id="dock" aria-label="主导航">
+        <button data-page="chat"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 1-8 8H6l-4 3 1.5-6A8 8 0 1 1 20 11Z"/><path d="M7 11h1m3 0h1m3 0h1"/></svg>聊天库</button>
+        <button data-page="history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>历史剧本</button>
+        <button data-page="books"><svg viewBox="0 0 24 24"><path d="M3 4q5-1 9 2 4-3 9-2v15q-5-1-9 2-4-3-9-2zM12 6v15"/></svg>剧本库</button>
+    </nav>
+    <dialog id="shelf">
+        <div class="sheet">
+            <header><h2 tabindex="-1" autofocus>聊天库</h2><button id="find-chats" class="button symbol" aria-label="搜索聊天" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 5 5"/></svg></button></header>
+            <div id="shelf-content"></div>
+        </div>
+    </dialog>
+    <dialog id="status">
+        <div class="sheet">
+            <header><h2>剧情状态</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
+            <div id="fields"></div>
+        </div>
+    </dialog>
+    <dialog id="actions">
+        <div class="sheet">
+            <header><h2>这条消息</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
+            <div id="message-actions"></div>
+        </div>
+    </dialog>
+    <dialog id="call">
+        <div class="sheet call">
+            <header><h2>语音通话</h2></header>
+            <div class="call-face" id="call-face"></div>
+            <h3 id="call-name"></h3>
+            <p id="call-status" role="status">说完后自动发送，角色回复后可继续说话。</p>
+            <button id="listen" class="button gold">开始说话</button>
+            <form class="end-call" method="dialog"><button aria-label="挂断"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 15v-3c4-5 14-5 18 0v3l-4 1-1-3a12 12 0 0 0-8 0l-1 3z"/></svg></button><span>挂断</span></form>
+        </div>
+    </dialog>
+</body>
+</html>

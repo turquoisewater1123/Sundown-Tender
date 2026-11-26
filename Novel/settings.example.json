@@ -1,0 +1,16 @@
+{
+  "text": {
+    "protocol": "openai",
+    "url": "https://kyrune.red/api/v1/chat/completions",
+    "model": "kyrune-mini-1.0-free",
+    "label": "Kyrune Mini 1.0",
+    "context": 28672,
+    "output": 1000,
+    "keyEnv": "KYRUNE_API_KEY"
+  },
+  "httpsHost": null,
+  "speech": null,
+  "transcription": null,
+  "image": null,
+  "video": null
+}

@@ -1,0 +1,29 @@
+name: Verify and promote
+on:
+  push:
+    branches: [dev]
+permissions:
+  contents: write
+concurrency:
+  group: promote-test
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --prefix Novel && npm ci --prefix SillyTavern --no-audit
+      - run: |
+          node runtime/prepare-tavern.mjs
+          node --check Novel/server.mjs
+          node --check Novel/mongo.mjs
+          node --check runtime/mobile-access.mjs
+          node --check Novel/public/app.mjs
+          test -s Novel/downloads/NightRead-Android.apk
+      - name: Fast-forward test
+        run: git push origin HEAD:refs/heads/test
