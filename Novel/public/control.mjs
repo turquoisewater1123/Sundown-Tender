@@ -26,6 +26,8 @@ async function load() {
             row('单轮输出上限', result.output + ' Token'),
             row('生成中的存档', result.running),
             row('首段等待', previous?.firstToken == null ? '等待生成' : previous.firstToken + ' 毫秒'),
+            ...[['状态生成', previous?.stateGenerationMs], ['回复后处理', previous?.postprocessMs], ['本轮存取', previous?.storageMs]]
+                .filter(([, value]) => Number.isFinite(value)).map(([label, value]) => row(label, value + ' 毫秒')),
             row('最近生成速度', previous?.speed == null ? '暂无数据' : previous.speed.toFixed(1) + ' Token/秒'),
             row('模型显存', result.loaded == null ? '暂无本地运行数据' : result.loaded.map(model =>
                 model.name + ' · ' + (model.vram / 1024 ** 3).toFixed(2) + ' GiB').join('\n') || '本地模型未加载'),

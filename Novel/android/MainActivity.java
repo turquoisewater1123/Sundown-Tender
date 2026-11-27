@@ -32,6 +32,8 @@ public final class MainActivity extends Activity {
     private static final int MIC_REQUEST = 1;
     private WebView web;
     private TextView status;
+    private LinearLayout disconnected;
+    private boolean pageFailed;
     private URI server;
     private PermissionRequest pendingMic;
     private ValueCallback<Uri[]> fileSelection;
@@ -114,31 +116,43 @@ public final class MainActivity extends Activity {
         LinearLayout column = new LinearLayout(this);
         column.setOrientation(LinearLayout.VERTICAL);
         column.setBackgroundColor(Color.WHITE);
-        LinearLayout toolbar = new LinearLayout(this);
-        toolbar.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        disconnected = new LinearLayout(this);
+        disconnected.setOrientation(LinearLayout.VERTICAL);
+        disconnected.setGravity(Gravity.CENTER);
+        disconnected.setPadding(dp(24), dp(24), dp(24), dp(24));
+        TextView heading = new TextView(this);
+        heading.setText("夜读");
+        heading.setTextSize(32);
+        heading.setTextColor(Color.rgb(38, 32, 36));
+        disconnected.addView(heading);
         status = new TextView(this);
-        status.setTextColor(Color.rgb(48, 58, 51));
-        status.setPadding(dp(12), 0, dp(4), 0);
-        toolbar.addView(status, new LinearLayout.LayoutParams(0, -2, 1));
-        Button connection = new Button(this);
-        connection.setText("连接设置");
+        status.setTextColor(Color.rgb(98, 92, 96));
+        status.setGravity(Gravity.CENTER);
+        status.setPadding(0, dp(8), 0, dp(20));
+        disconnected.addView(status);
+        LinearLayout actions = new LinearLayout(this);
+        Button retry = textButton("重新连接");
+        retry.setOnClickListener(view -> load());
+        actions.addView(retry);
+        Button connection = textButton("连接设置");
         connection.setOnClickListener(view -> settings());
-        toolbar.addView(connection, new LinearLayout.LayoutParams(-2, dp(48)));
-        column.addView(toolbar);
-        toolbar.setVisibility(View.GONE);
+        actions.addView(connection);
+        disconnected.addView(actions);
+        column.addView(disconnected, new LinearLayout.LayoutParams(-1, -1));
+        disconnected.setVisibility(View.GONE);
 
         web = new WebView(this);
         web.setBackgroundColor(Color.WHITE);
         configureWebView();
         column.addView(web, new LinearLayout.LayoutParams(-1, 0, 1));
         setContentView(column);
-        if (server == null) { toolbar.setVisibility(View.VISIBLE); settings(); } else load();
+        load();
     }
 
     private void configureWebView() {
         WebSettings config = web.getSettings();
         config.setJavaScriptEnabled(true);
-        config.setUserAgentString(config.getUserAgentString() + " NightReadPhone/1.2");
+        config.setUserAgentString(config.getUserAgentString() + " NightReadPhone/1.3");
         config.setDomStorageEnabled(true);
         config.setAllowFileAccess(false);
         config.setAllowContentAccess(false);
@@ -165,13 +179,18 @@ public final class MainActivity extends Activity {
             }
 
             @Override public void onPageFinished(WebView view, String url) {
-                if ("正在连接…".contentEquals(status.getText())) status.setText(server.getHost());
+                if (!pageFailed && sameOrigin(Uri.parse(url)) && novelPath(Uri.parse(url))) {
+                    disconnected.setVisibility(View.GONE);
+                    web.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 if (request.isForMainFrame()) {
-                    status.setText("连接失败，请检查电脑和网络");
-                    ((View)status.getParent()).setVisibility(View.VISIBLE);
+                    pageFailed = true;
+                    status.setText("暂时连不上电脑，请检查网络后重试。");
+                    web.setVisibility(View.GONE);
+                    disconnected.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -221,7 +240,7 @@ public final class MainActivity extends Activity {
     }
 
     private boolean sameOrigin(Uri link) {
-        return server.getScheme().equalsIgnoreCase(link.getScheme()) &&
+        return server != null && server.getScheme().equalsIgnoreCase(link.getScheme()) &&
             server.getHost().equalsIgnoreCase(link.getHost()) &&
             port(server.getPort(), server.getScheme()) == port(link.getPort(), link.getScheme());
     }
@@ -236,7 +255,14 @@ public final class MainActivity extends Activity {
     }
 
     private void load() {
-        if (server == null) return;
+        if (server == null) {
+            web.setVisibility(View.GONE);
+            disconnected.setVisibility(View.VISIBLE);
+            status.setText("请输入电脑端显示的连接地址");
+            settings();
+            return;
+        }
+        pageFailed = false;
         status.setText("正在连接…");
         web.loadUrl(server.toASCIIString() + "/novel/");
     }
@@ -245,12 +271,20 @@ public final class MainActivity extends Activity {
         return Math.round(value * getResources().getDisplayMetrics().density);
     }
 
+    private Button textButton(String label) {
+        Button button = new Button(this, null, android.R.attr.borderlessButtonStyle);
+        button.setText(label);
+        button.setTextSize(15);
+        button.setMinHeight(dp(48));
+        button.setTextColor(Color.rgb(90, 54, 74));
+        return button;
+    }
+
     private void settings() {
         final EditText field = new EditText(this);
         field.setSingleLine(true);
         field.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-        field.setHint("http://192.168.x.x:8001");
-        if (server != null) field.setText(server.toASCIIString());
+        field.setText(server == null ? "" : server.toASCIIString());
         AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle("夜读服务器")
             .setMessage("在家填写电脑的局域网地址。外出时使用已配置的 Tailscale HTTPS 地址。")

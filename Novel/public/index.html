@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
     <meta name="theme-color" content="#ffffff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>夜读 · 互动小说</title>
@@ -20,15 +20,17 @@
                 <svg viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></svg>
             </button>
             <div id="header-face"></div>
-            <button type="button" class="identity" id="story-history-link" aria-label="查看当前剧本的历史">
+            <button type="button" class="identity" id="story-history-link" aria-label="切换当前剧本的故事线">
                 <span id="route">夜读</span>
                 <span id="character">互动小说</span>
             </button>
             <button id="inspect" class="button symbol" aria-label="剧情状态" title="剧情状态" disabled>
                 <svg viewBox="0 0 24 24"><path d="m3 12 4-4 3 4 3-7 3 11 2-4h3"/></svg>
+
             </button>
             <button id="phone" class="button symbol" aria-label="语音对话" title="语音对话" disabled>
                 <svg viewBox="0 0 24 24"><path d="m8 4 2 5-2 2a12 12 0 0 0 5 5l2-2 5 2c1 7-8 5-13 0S1 3 8 4Z"/></svg>
+
             </button>
         </header>
         <main id="reading" tabindex="0" aria-label="剧情记录">
@@ -46,7 +48,7 @@
             <p id="notice" role="status"></p>
             <div class="tools">
                 <button id="music" class="tool" aria-pressed="false" hidden>背景音</button>
-                <button id="jump" class="tool" hidden>回到最新 ↓</button>
+                <button id="jump" class="tool" hidden aria-label="回到最新" title="回到最新"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v15m-6-6 6 6 6-6"/></svg></button>
             </div>
             <form id="composer">
                 <button hidden id="dictate" type="button" class="button symbol" aria-label="语音输入">
@@ -71,19 +73,30 @@
             <div id="shelf-content"></div>
         </div>
     </dialog>
-    <dialog id="status">
+    <dialog id="art-viewer" aria-labelledby="art-title">
+        <div class="sheet"><header><h2 id="art-title">剧照</h2><form method="dialog"><button class="sheet-close" aria-label="关闭剧照">×</button></form></header><div id="full-art"></div></div>
+    </dialog>
+    <dialog id="erase-confirm" aria-labelledby="erase-title">
+        <div class="sheet"><header><h2 id="erase-title"></h2></header>
+            <p id="erase-note"></p><p id="erase-error" role="alert"></p>
+            <div class="erase-controls"><button id="erase-cancel" autofocus>取消</button><button id="erase-accept">永久删除</button></div>
+        </div>
+    </dialog>
+    <dialog id="status" aria-labelledby="status-title">
         <div class="sheet">
-            <header><h2>剧情状态</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
+            <header><h2 id="status-title">剧情状态</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
             <div id="fields"></div>
         </div>
     </dialog>
-    <dialog id="actions">
+<dialog id="story-routes" aria-labelledby="routes-title"><section class="sheet"><header><h2 id="routes-title">故事线</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header><div id="route-list"></div></section></dialog>
+    <dialog id="rename-route" aria-labelledby="rename-title"><form class="sheet" id="route-form"><header><h2 id="rename-title">给故事线起名</h2><button type="button" class="sheet-close" id="rename-cancel" aria-label="取消">×</button></header><input id="route-name" aria-label="故事线名称" maxlength="65" required autocomplete="off"><p id="route-error" role="alert"></p><button type="submit">保存</button></form></dialog>
+    <dialog id="actions" aria-labelledby="actions-title">
         <div class="sheet">
-            <header><h2>这条消息</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
+            <header><h2 id="actions-title">这条消息</h2><form method="dialog"><button class="sheet-close" aria-label="关闭">×</button></form></header>
             <div id="message-actions"></div>
         </div>
     </dialog>
-    <dialog id="call">
+    <dialog id="call" aria-label="语音通话">
         <div class="sheet call">
             <header><h2>语音通话</h2></header>
             <div class="call-face" id="call-face"></div>

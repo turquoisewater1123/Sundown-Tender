@@ -25,7 +25,7 @@ Windows 电脑运行服务，手机用浏览器或 Android 客户端访问。仓
 
 ## 模型与文件
 
-夜读默认使用 Kyrune Mini 聊天。Run.ps1 会把 Novel/settings.example.json 复制为忽略提交的 Novel/settings.json，可在此更换服务。SillyTavern 有独立的 API 连接面板，需要配置自己的模型。英文卡自动翻译目前还依赖本机 Ollama 服务 127.0.0.1:11435 的 qwen2.5:7b。图片、视频和语音服务按需配置。models/ 放模型配置；权重需单独获取。旧的 Start-Tavern、Keep-Tavern-Running 等脚本供已有便携运行时使用，新机器使用 Run.ps1。
+夜读默认使用 Kyrune Mini 聊天。Run.ps1 会把 Novel/settings.example.json 复制为忽略提交的 Novel/settings.json，可在此更换服务。SillyTavern 有独立的 API 连接面板，需要配置自己的模型。剧本库可以在 Novel/catalog-translations.json 配置中文简介与背景。视频和语音按需配置。models/ 放模型配置；权重需单独获取。旧的 Start-Tavern、Keep-Tavern-Running 等脚本供已有便携运行时使用，新机器使用 Run.ps1。
 
 夜读在云 MongoDB 保存聊天、分支、状态、翻译和媒体索引。用户角色卡、SillyTavern 自己的聊天文件、生成媒体、登录信息以及 Android 签名均存于服务器文件系统。迁移整台服务器时需另行私下复制这些文件；仅连接数据库不能恢复附件或酒馆的独立存档。
 
@@ -42,6 +42,10 @@ node --env-file=.env Novel/verify-migration.mjs
 ~~~
 
 每一步都须成功再继续。核验脚本比较集合清单以及按 _id 排序的全部 BSON 数据摘要。通过后用 Run.ps1 启动云版本，确认历史、分支和新消息正常，再关闭旧 mongod。失败时保留源库和备份，修正问题后用新的空目标重试。
+
+## 聊天实况图
+
+每条回复可选择免费慢速（AI Horde · MeinaMix）或付费快速（OpenUncensored · WAI Illustrious）。快速通道需在服务器 .env 设置 OPENUNCENSORED_API_KEY 后重启。两种通道都用当前文本模型准备分镜。每次重生成会追加一张，可单独放大和删除。
 
 ## Android 构建
 

@@ -2,12 +2,12 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import { BlockList, isIPv4 } from 'node:net';
-import { handleNovel, isAndroidDownload, translateExistingCards } from '../Novel/server.mjs';
+import { handleNovel, isAndroidDownload } from '../Novel/server.mjs';
+import { loginRoute, redirectToLogin, signedIn } from '../Novel/login.mjs';
 
 const [address, prefix] = process.argv.slice(2);
 const port = 8001;
 const host = `${address}:${port}`;
-void translateExistingCards().catch(error => console.error('剧本库暂时无法读取',error.message));
 const origin = `http://${host}`;
 if (!isIPv4(address) || !/^\d+$/.test(prefix) || Number(prefix) < 16 || Number(prefix) > 32) {
     throw new Error('Expected the Wi-Fi IPv4 address and subnet prefix.');
@@ -22,10 +22,17 @@ try {
 } catch (error) {
     if (error.code !== 'EEXIST') throw error;
 }
+async function loadCredentials(){
+    const {username,password}=JSON.parse(await readFile(credentialFile,'utf8'));
+    if(typeof username!=='string' || typeof password!=='string') throw new Error('Invalid login configuration');
+    return [username,password];
+}
 async function authenticate(req, res) {
     let expected;
+    const novel=/^\/novel(?:[/?]|$)/.test(req.url);
     try {
-        const { username, password } = JSON.parse(await readFile(credentialFile, 'utf8'));
+        const [username,password]=await loadCredentials();
+        if(novel && signedIn(req,[username,password])) return true;
         expected = Buffer.from('Basic ' + Buffer.from(`${username}:${password}`).toString('base64'));
     } catch {
         res.writeHead(503).end('Mobile login configuration is unavailable');
@@ -33,6 +40,9 @@ async function authenticate(req, res) {
     }
     const supplied = Buffer.from(req.headers.authorization ?? '');
     if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
+        if(req.method==='GET' && /^\/novel\/?(?:\?|$)/.test(req.url) && !req.headers.authorization){
+            redirectToLogin(req,res);return false;
+        }
         res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Local SillyTavern"', 'Cache-Control': 'no-store' });
         res.end('Sign in to SillyTavern');
         return false;
@@ -46,8 +56,8 @@ http.createServer(async (req, res) => {
         res.writeHead(403).end('Local Wi-Fi access only');
         return;
     }
+    if(await loginRoute(req,res,loadCredentials,false)) return;
     // Android launchers can hand downloads to a process without the browser's Basic auth.
-    // Only the fixed installer file is available without credentials on the Wi-Fi subnet.
     if (isAndroidDownload(req)) {
         await handleNovel(req, res);
         return;
@@ -85,7 +95,8 @@ http.createServer(async (req, res) => {
             res.writeHead(403).end();
             return;
         }
-        if (!await authenticate(req, res)) return;
     }
+    if(await loginRoute(req,res,loadCredentials,!direct)) return;
+    if(!direct && !await authenticate(req,res)) return;
     if (!await handleNovel(req, res, direct)) res.writeHead(302, { Location: '/novel/' }).end();
 }).listen(8002, '127.0.0.1', () => console.log(`Novel preview: ${localOrigin}/novel/`));

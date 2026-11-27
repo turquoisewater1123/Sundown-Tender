@@ -1,4 +1,4 @@
-const cacheName = 'novel-shell-v2';
+const cacheName = 'novel-shell-v4';
 const files = ['', 'app.mjs', 'status.mjs', 'style.css', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 const scope = self.registration.scope;
 self.addEventListener('install', event => {

@@ -1,4 +1,5 @@
 const legacyMeters = new Set(['好感度', '心动值', '羞耻度']);
+const stateMeters = new Set([...legacyMeters,'信任值','羞耻值','抗拒值','期待值','主动意愿','安全感','高潮度','性兴奋度','乳头坚硬程度','小穴湿润程度']);
 const wrappers = ['scene_status', 'scene_state', '剧本状态', '状态'];
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const labels = new Map(Object.entries({
@@ -146,7 +147,7 @@ export function readMeter(label, value) {
         value.max > 0 && value.value >= 0 && value.value <= value.max) {
         return { value: value.value, max: value.max, note: typeof value.note === 'string' ? value.note : '' };
     }
-    if (legacyMeters.has(label) && Number.isFinite(value) && value >= 0 && value <= 100) {
+    if (stateMeters.has(label) && Number.isFinite(value) && value >= 0 && value <= 100) {
         return { value, max: 100, note: '' };
     }
     const percent = typeof value === 'string' && /^(\d+(?:\.\d+)?)\s*[%％]\s*(.*)$/s.exec(value);

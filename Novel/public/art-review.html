@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" /><meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  /><title>夜读 · 图片复核</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: auto;
+      padding: 20px;
+      max-width: 1360px;
+      background: #19181c;
+      color: #f5eff0;
+      font:
+        16px/1.5 system-ui,
+        sans-serif;
+    }
+    h1 {
+      font: 500 30px/1.3 serif;
+      margin: 0 0 12px;
+    }
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    button,
+    input {
+      font: inherit;
+      color: inherit;
+      background: #332d35;
+      border: 1px solid #675762;
+      border-radius: 8px;
+      padding: 7px 12px;
+    }
+    button {
+      cursor: pointer;
+    }
+    button[aria-pressed="true"] {
+      background: #85596e;
+    }
+    main {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(155px, 44%), 1fr));
+      gap: 14px;
+    }
+    article {
+      min-width: 0;
+      background: #28232a;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    article > div {
+      padding: 8px;
+    }
+    img, article > video {
+      display: block;
+      width: 100%;
+      height: 210px;
+      object-fit: contain;
+      background: #131115;
+    }
+    .layer-compare {
+      position: relative;
+      touch-action: pan-y;
+      user-select: none;
+    }
+    article details video {
+      display: block;
+      width: 100%;
+      margin: .4rem 0;
+      background: #131115;
+    }
+    .art-plates a {
+      display: block;
+      margin-block: .35rem;
+    }
+    .art-plates img {
+      height: auto;
+    }
+    main.reading {
+      display: block;
+      max-width: 800px;
+      margin-inline: auto;
+    }
+    main.reading article > a:first-child {
+      display: none;
+    }
+    .layer-compare img {
+      height: auto;
+      pointer-events: none;
+    }
+    .layer-compare img + img {
+      position: absolute;
+      inset: 0;
+    }
+    .layer-compare + input {
+      width: 100%;
+      margin: .6rem 0;
+    }
+    .variant-picker {
+      display: block;
+      margin: .6rem 0;
+      color: #ddcbd4;
+      font-size: .9rem;
+    }
+    .variant-picker select {
+      display: block;
+      width: 100%;
+      min-height: 44px;
+      margin-top: .2rem;
+      padding: .3rem;
+      border: 1px solid #675762;
+      border-radius: 6px;
+      background: #332d35;
+      font: inherit;
+      color: #fff;
+    }
+    small {
+      display: block;
+      color: #cfbfc9;
+      overflow-wrap: anywhere;
+    }
+    a {
+      color: #f6c9df;
+    }
+    article button {
+      margin-top: 5px;
+    }
+    #status {
+      color: #ddcbd4;
+    }
+  </style>
+  <h1>夜读 · 图片复核</h1>
+  <nav>
+    <button id="recent">本轮采用</button><button id="used">全部在用</button
+    ><button id="workshop">工坊实测</button><button id="picks">网站候选</button><button id="stories">原创开场</button
+    ><button id="flags">已标记</button
+    ><input
+      id="search"
+      placeholder="搜索剧本、角色或用途"
+      aria-label="搜索"
+    /><button id="copy">复制标记清单</button>
+  </nav>
+  <p id="status" role="status">正在读取剧本图片…</p>
+  <main></main>
+  <script type="module" src="art-review.mjs"></script>
+</html>
